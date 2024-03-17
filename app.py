@@ -2,6 +2,7 @@ from pathlib import Path
 from db import db
 from flask import Flask, render_template
 import csv
+from models import Customer, Product
 app = Flask(__name__)
 #this will make flask use a 'sqlite database witht the filename provided
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///store.db"
@@ -17,24 +18,17 @@ def home():
 
 @app.route("/customers")
 def customers():
-    with open('data/customers.csv', "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        # print(type(reader))
-        customers = []
-        for row in reader:
-            # print(type(row)) 
-            # print((row)) 
-            customers.append(row)
-        return render_template("customers.html", customers=customers)
+    statement = db.select(Customer).order_by(Customer.id)
+    records = db.session.execute(statement)
+    results = records.scalars()
+    return render_template("customers.html", customers=results)
            
 @app.route("/products")
 def products():
-    with open('data/products.csv', "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        products = []
-        for row in reader:
-            products.append(row)
-        return render_template('products.html',products=products)
+    statement = db.select(Product).order_by(Product.id)
+    records = db.session.execute(statement)
+    results = records.scalars()
+    return render_template("products.html", products=results)
 
 
 if __name__ == "__main__":

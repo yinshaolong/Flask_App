@@ -9,12 +9,11 @@ def drop_tables():
 def create_tables():
     db.create_all()
 
-
-def seed_database(filename, class_name):
+def seed_database(filename, class_type):
     with open(filename, "r") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            obj = class_name(**row)
+            obj = class_type(**row)
             db.session.add(obj)
         db.session.commit()
 
@@ -22,12 +21,12 @@ if __name__ == "__main__":
     with app.app_context():
         drop_tables()
         create_tables()
-        # seed_customers()
-        # seed_products()
         seed_database("data/customers.csv", Customer)
         seed_database("data/products.csv", Product)
+        # seed_customers()
+        # seed_products()
 
-        
+
 # def seed_customers():
 #     with open('data/customers.csv', 'r') as csvfile:
 #         reader = csv.DictReader(csvfile)
