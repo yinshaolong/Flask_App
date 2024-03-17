@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Customers</h1>
+{% for customer in customers %}
+<p>
+    <span>{{ customer.name }}</span>
+    <span>{{ customer.phone }}</span>
+</p>
+{% endfor %}
+{% endblock %}
