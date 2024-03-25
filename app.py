@@ -158,7 +158,28 @@ def product_delete(product_id):
     db.session.commit()
     return (jsonify({"product deleted"}), 204)
     
-
+@app.route("/api/orders", methods=["POST"])
+def order_create():
+    print(request.json)
+    if "customer_id" not in request.json:
+        return jsonify({"error": "Customer ID is required"}, 404)
+    if "items" not in request.json or len(request.json["items"]) < 1:
+        return jsonify({"error": "Items are required"}, 404)
+    order = db.get_or_404(Order, request.json["customer_id"])
+    is_valid_order = False
+    for item in request.json["items"]:
+        if "name" not in item or "quantity" not in item:
+            return jsonify({"error": "Product name and quantity are required for each item"}, 404)
+        product_statement = db.select(Product).where(Product.name == item["name"])
+        product = db.session.execute(product_statement).scalar()
+        if product:
+            is_valid_order = True
+            product_order = ProductOrder(order=order, product=product, quantity=item["quantity"])
+            db.session.add(product_order)
+            db.session.commit()
+    if not is_valid_order:
+        return jsonify({"error": "No valid products in the order"}, 404)
+    return jsonify({"Message": "Order created"}, 201)
 
 if __name__ == "__main__":
     app.run(debug=True, port=8888)
