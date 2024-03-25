@@ -1,6 +1,6 @@
 from pathlib import Path
 from db import db
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import csv
 from models import Customer, Product
 app = Flask(__name__)
@@ -12,6 +12,8 @@ app.instance_path = Path(".").resolve()
 #connects db object with the app object - line 5
 db.init_app(app)
 
+
+
 @app.route("/")
 def home():
     return render_template("base.html")
@@ -20,7 +22,7 @@ def home():
 def customers():
     statement = db.select(Customer).order_by(Customer.id)
     records = db.session.execute(statement)
-    results = records.scalars()
+    results = records.scalars() #converts into a list
     return render_template("customers.html", customers=results)
            
 @app.route("/products")
@@ -29,6 +31,85 @@ def products():
     records = db.session.execute(statement)
     results = records.scalars()
     return render_template("products.html", products=results)
+
+@app.route("/api/customers")
+def customers_json():
+    statement = db.select(Customer).order_by(Customer.name)
+    results = db.session.execute(statement)
+    customers = [] #output variable
+    for customer in results.scalars(): #scalars is an iterator queue
+        json_record = {
+            "id": customer.id,
+            "name": customer.name,
+            "phone": customer.phone,
+            "balance": customer.balance
+        }
+        customers.append(json_record)
+    return jsonify(customers)
+
+@app.route("/api/customers/<int:customer_id>")
+def customer_detail_json(customer_id):
+    statement = db.select(Customer).where(Customer.id == customer_id)
+    result = db.session.execute(statement)
+    customer = result.scalar()
+    # if not customer:
+    #     return jsonify({"error": "Customer not found"}), 404
+    #single entry so no need to iterate
+    json_record = {
+            "id": customer.id,
+            "name": customer.name,
+            "phone": customer.phone,
+            "balance": customer.balance
+    }
+    return jsonify(json_record)
+
+@app.route("/api/customers/<int:customer_id>", methods=["DELETE"])
+def customer_delete(customer_id):
+    # customer = db.session.execute(db.select(Customer).where(Customer.id == customer_id)).scalar()
+    customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
+    db.session.delete(customer)
+    db.session.commit()
+    return "deleted"
+
+def contains_digit(number):
+    return any(char.isdigit() for char in number) #returns true if ANY character in the string is a digit
+
+def contains_letter(number):
+    return any(char.isalpha() for char in number) # ^ "" ^ if is a letter
+
+def is_valid_phone(number):
+    return len([char for char in number if char.isdigit()]) == 10
+    # counter = 0
+    # for char in number:
+    #     if char.isdigit():
+    #         counter += 1
+    # return counter == 10
+
+@app.route("/api/customers", methods=["POST"])
+def customer_create():
+    print(request.json)
+    if "name" not in request.json or "phone" not in request.json:
+        return jsonify({"error": "Name and phone are required"}), 400
+    if isinstance(request.json["name"], str) and contains_digit(request.json["name"]):
+        return jsonify({"error": "Invalid name"}), 400
+    if contains_letter(request.json["phone"]) or not isinstance(request.json["phone"], str) or not is_valid_phone(request.json["phone"]):
+        return jsonify({"error": "Invalid phone number"}), 400
+    customer = Customer(**request.json)
+    db.session.add(customer)
+    db.session.commit()
+    return "created", 201
+
+@app.route("/api/customers/<int:customer_id>", methods=["PUT"])
+def customer_update(customer_id):
+    print(request.json) #requests = balance
+    customer = db.get_or_404(Customer, request.json['customer_id'])
+    if 'balance' not in request.json or not isinstance(request.json['balance'], (int, float)):
+        return "invalid balance input", 400
+    customer.balance = request.json['balance']
+    db.session.commit()
+    return "", 204
+
+
 
 
 if __name__ == "__main__":
