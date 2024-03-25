@@ -15,6 +15,19 @@ class Product(db.Model):
     id = mapped_column(Integer, primary_key=True)
     name = mapped_column(String(200), nullable=False, unique=True)
     price = mapped_column(Numeric, nullable=False)
+    available = mapped_column(Integer, nullable=False, default=0)
+
+class Order(db.Model):
+    id = mapped_column(Integer, nullable=False, primary_key=True)
+    customer_id = mapped_column(Integer, ForeignKey("customer.id"), nullable=False)
+    total = mapped_column(Numeric, nullable=False)
+
+class ProductOrder(db.Model):
+    id = mapped_column(Integer, nullable=False, primary_key=True)
+    order_id = mapped_column(Integer, ForeignKey("order.id"), nullable=False)
+    product_id = mapped_column(Integer, ForeignKey("product.id"), nullable=False)
+    quantity = mapped_column(Integer, nullable=False)
+
 
 
 

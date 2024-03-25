@@ -69,45 +69,56 @@ def customer_delete(customer_id):
     customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
     db.session.delete(customer)
     db.session.commit()
-    return "deleted"
+    return ("deleted", 204)
 
 def contains_digit(number):
     return any(char.isdigit() for char in number) #returns true if ANY character in the string is a digit
 
-def contains_letter(number):
-    return any(char.isalpha() for char in number) # ^ "" ^ if is a letter
+def contains_letter(letter):
+    return any(char.isalpha() for char in letter) # ^ "" ^ if is a letter
 
 def is_valid_phone(number):
-    return len([char for char in number if char.isdigit()]) == 10
-    # counter = 0
-    # for char in number:
-    #     if char.isdigit():
-    #         counter += 1
-    # return counter == 10
+    return len([char for char in number if char.isdigit()]) == 10 #returns true if the length of the list of digits in the string is 10
 
 @app.route("/api/customers", methods=["POST"])
 def customer_create():
     print(request.json)
     if "name" not in request.json or "phone" not in request.json:
-        return jsonify({"error": "Name and phone are required"}), 400
+        return (jsonify({"error": "Name and phone are required"}), 400)
     if isinstance(request.json["name"], str) and contains_digit(request.json["name"]):
-        return jsonify({"error": "Invalid name"}), 400
+        return (jsonify({"error": "Invalid name"}), 400)
     if contains_letter(request.json["phone"]) or not isinstance(request.json["phone"], str) or not is_valid_phone(request.json["phone"]):
-        return jsonify({"error": "Invalid phone number"}), 400
+        return (jsonify({"error": "Invalid phone number"}), 400)
     customer = Customer(**request.json)
     db.session.add(customer)
     db.session.commit()
-    return "created", 201
+    message = "Created"
+    return (jsonify({"Message": "created"}), 201)
+    # return ("created", 201)
 
 @app.route("/api/customers/<int:customer_id>", methods=["PUT"])
 def customer_update(customer_id):
     print(request.json) #requests = balance
-    customer = db.get_or_404(Customer, request.json['customer_id'])
+    customer = db.get_or_404(Customer, customer_id)
     if 'balance' not in request.json or not isinstance(request.json['balance'], (int, float)):
-        return "invalid balance input", 400
+        return jsonify({"error": "Invalid balance input"}, 400)
     customer.balance = request.json['balance']
     db.session.commit()
-    return "", 204
+    return (jsonify(), 204) #returns an empty json object with a status code of 204
+
+@app.route("/api/products", methods=["POST"])
+def product_create():
+    print(request.json)
+    if "name" not in request.json or "price" not in request.json:
+        return jsonify({"error": "Name and price are required"}, 404)
+    if not isinstance(request.json["name"], str) and not contains_letter(request.json["name"]): #some products have numbers in their name no-> contains_digit(request.json["name"])
+        return jsonify({"error": "Invalid name"}, 400)
+    if not isinstance(request.json["price"], float) or request.json["price"] < 0:
+        return jsonify({"error": "Invalid price"}, 400)
+    product = Product(**request.json)
+    db.session.add(product)
+    db.session.commit()
+    return (jsonify({"Message": "created"}), 201)
 
 
 
