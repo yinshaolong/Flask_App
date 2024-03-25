@@ -18,7 +18,7 @@ def seed_database(filename, class_type):
         db.session.commit()
 
 if __name__ == "__main__":
-    with app.app_context():
+    with app.app_context(): #makes the application instance and other context variables accessible
         drop_tables()
         create_tables()
         seed_database("data/customers.csv", Customer)
