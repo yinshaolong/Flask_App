@@ -2,7 +2,7 @@ from pathlib import Path
 from db import db
 from flask import Flask, render_template, request, jsonify
 import csv
-from models import Customer, Product
+from models import Customer, Product, Order, ProductOrder
 app = Flask(__name__)
 #this will make flask use a 'sqlite database witht the filename provided
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///store.db"
@@ -32,6 +32,24 @@ def products():
     results = records.scalars()
     return render_template("products.html", products=results)
 
+@app.route("/customers/<int:customer_id>")
+def customer_detail(customer_id):
+    # print("in customer details")
+    # statement = db.select(Customer).where(Customer.id == customer_id)
+    # result = db.session.execute(statement)
+    # customer = result.scalar()
+    customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
+    return render_template("customer_detail.html", customer=customer)
+
+@app.route("/orders")
+def orders():
+    statement = db.select(Order).order_by(Order.id)
+    records = db.session.execute(statement)
+    results = records.scalars()
+    return render_template("orders.html", orders=results)
+
+
+
 @app.route("/api/customers")
 def customers_json():
     statement = db.select(Customer).order_by(Customer.name)
@@ -49,11 +67,10 @@ def customers_json():
 
 @app.route("/api/customers/<int:customer_id>")
 def customer_detail_json(customer_id):
-    statement = db.select(Customer).where(Customer.id == customer_id)
-    result = db.session.execute(statement)
-    customer = result.scalar()
-    # if not customer:
-    #     return jsonify({"error": "Customer not found"}), 404
+    # statement = db.select(Customer).where(Customer.id == customer_id)
+    # result = db.session.execute(statement)
+    # customer = result.scalar()
+    customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
     #single entry so no need to iterate
     json_record = {
             "id": customer.id,

@@ -23,7 +23,7 @@ class Order(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)
     customer_id = mapped_column(Integer, ForeignKey(Customer.id), nullable=False)
     customer = relationship("Customer", back_populates="orders")#looks up related enttiy without having to do joins (adds customer_id to the Order table)
-    total = mapped_column(Numeric, nullable=False)
+    total = mapped_column(Numeric, nullable=True) #nullable until order is processed by the store
     items = relationship("ProductOrder") 
 
 class ProductOrder(db.Model):

@@ -4,10 +4,14 @@
 <h1>Customers</h1>
 {% for customer in customers %}
 <p>
-
-    <span>{{ customer.id }}</span>
-    <span>{{ customer.name }}</span>
-    <span>{{ customer.phone }}</span>
+    <nav>
+    <!-- first param needs to be the name of the function in the app.py file (customer_detail) -->
+    <a href="{{ url_for('customer_detail', customer_id=customer.id) }}">
+        <span>{{ customer.id }}</span>
+        <span>{{ customer.name }}</span>
+        <span>{{ customer.phone }}</span>
+    </a> 
+    </nav>
 </p>
 {% endfor %}
 {% endblock %}
