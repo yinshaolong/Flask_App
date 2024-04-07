@@ -6,8 +6,8 @@
     <title>Document</title>
 </head>
 <body>
-    <span>Customer Name: {{ customer.name }}</span>
-    {% for order in customer.orders %}
+        <span>Order Number: {{ order.id }}</span>
+    {% for product in order.items %}
         <p>
             <a href="{{ url_for('orders') }}"><span>Order ID: {{ order.id }}</span></a>
             <span>Total: {{ order.total }}</span>

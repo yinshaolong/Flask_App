@@ -1,6 +1,6 @@
 from pathlib import Path
 from db import db
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, redirect, url_for, render_template, request, jsonify
 import csv
 from models import Customer, Product, Order, ProductOrder
 app = Flask(__name__)
@@ -41,6 +41,12 @@ def customer_detail(customer_id):
     customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
     return render_template("customer_detail.html", customer=customer)
 
+@app.route("/orders/<int:order_id>")
+def order_detail(order_id):
+    order = db.get_or_404(Order, order_id) #does the same thing as line above, but also returns the 404 error if not found
+    return render_template("order_detail.html", order=order)
+
+
 @app.route("/orders")
 def orders():
     statement = db.select(Order).order_by(Order.id)
@@ -56,12 +62,13 @@ def customers_json():
     results = db.session.execute(statement)
     customers = [] #output variable
     for customer in results.scalars(): #scalars is an iterator queue
-        json_record = {
-            "id": customer.id,
-            "name": customer.name,
-            "phone": customer.phone,
-            "balance": customer.balance
-        }
+        # json_record = {
+        #     "id": customer.id,
+        #     "name": customer.name,
+        #     "phone": customer.phone,
+        #     "balance": customer.balance
+        # }
+        json_record = customer.to_json()
         customers.append(json_record)
     return jsonify(customers)
 
@@ -87,6 +94,16 @@ def customer_delete(customer_id):
     db.session.delete(customer)
     db.session.commit()
     return ("deleted", 204)
+
+@app.route("/orders/<int:order_id>/delete", methods=["POST"])
+def order_delete(order_id):
+    order = db.get_or_404(Order, order_id)
+    db.session.delete(order)
+    db.session.commit()
+    # return ("deleted", 204)
+    
+    #redirects to the url where the list of orders are
+    return redirect(url_for("orders"))
 
 def contains_digit(number):
     return any(char.isdigit() for char in number) #returns true if ANY character in the string is a digit
@@ -163,7 +180,7 @@ def order_create():
     print(request.json)
     if "customer_id" not in request.json:
         return jsonify({"error": "Customer ID is required"}, 404)
-    if "items" not in request.json or len(request.json["items"]) < 1:
+    if "items" not in request.json or len(request.json["items"]) < 1: 
         return jsonify({"error": "Items are required"}, 404)
     order = db.get_or_404(Order, request.json["customer_id"])
     is_valid_order = False

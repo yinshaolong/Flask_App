@@ -6,12 +6,13 @@
     <title>Document</title>
 </head>
 <body>
+
     {% for order in orders %}
         <p>
             <span>Order ID: {{ order.id }} | </span>
             <span>Customer: {{ order.customer.name }} | </span>
             <span>Product: {{ order.items[0].product.name }} |</span>
-            <span>Product: ${{ order.items[0].product.price | round(2)}} |</span>
+            <span>Product: ${{ order.items[0].product.price }} |</span>
             <span>Quantity: {{ order.items[0].quantity }} |</span>
             <span>Total: {{ order.total }}</span>
         </p>
