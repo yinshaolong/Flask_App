@@ -9,7 +9,7 @@
         {% set classname = "processed" %}
     {% endif %}
     <p class = "{{ classname }}">
-        <span>Order ID: {{ order.id }}  </span>
+        <a class = "order" href= "{{ url_for('order_detail', order_id=order.id) }}"><span>Order ID: {{ order.id }}  </span></a>
         <span>Customer: {{ order.customer.name }}  </span>
         <span>Product: {{ order.items[0].product.name }} </span>
         <span>Product: ${{ order.items[0].product.price }} </span>

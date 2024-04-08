@@ -12,8 +12,11 @@
         </p>
         {% endfor %}
     </div>
-    <form action="{{ url_for('order_delete', order_id=order.id) }}" method="post">
+    <form class = "delete_button" action="{{ url_for('order_delete', order_id=order.id) }}" method="post">
         <input type="submit" value="Delete Order">
+    </form>
+    <form class = "process_button" action="{{ url_for('order_process', order_id=order.id) }}" method="post">
+        <input type="submit" value="Process Order">
     </form>
         <a href="/customers/{{ order.customer_id }}">Back to Orders </a>
 

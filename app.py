@@ -210,6 +210,12 @@ def update_order(order_id):
     db.session.commit()
     return jsonify({"Message": f"Strategy: {strategy} - Order processed "}, 204)
     
+@app.route("/api/orders/<int:order_id>", methods=["POST"])
+def order_process(order_id):
+    order = db.get_or_404(Order, order_id)
+    order.process_order()
+    db.session.commit()
+    return jsonify({"Message": "Order processed"}, 204)
 
 
 if __name__ == "__main__":

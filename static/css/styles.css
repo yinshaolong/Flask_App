@@ -74,13 +74,25 @@ form input[type="submit"] {
     transition: background-color 0.3s ease;
 }
 
-form input[type="submit"]:hover {
+form input[type="submit"].delete:hover {
     background-color: #cc0000;
+}
+
+form input[type="submit"].process:hover {
+    background-color: #726dc7;
 }
 
 .processed {
     background-color: #07781e;
     color: #ffffff;
+}
+
+.order {
+    color: #e18f8f;
+}
+
+.order:hover {
+    color: #cb3434;
 }
 
 .pending {
