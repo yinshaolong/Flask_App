@@ -6,7 +6,7 @@
 {% for product in products %}
 <div>
     <p>
-        <span class="product_name">Product ID: {{ product.id }}</span>
+         <a class = "product" href= "{{ url_for('product_detail', product_id=product.id) }}"><span>Product ID: {{ product.id }}  </span></a>
         <span class="product_name">Product Name: {{ product.name }}</span>
         <span class="product_price">Product Price: {{ product.price }}</span>
     </p>

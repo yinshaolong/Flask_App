@@ -1,38 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-        <span>Order Number: {{ order.id }}</span>
     <div>
-    {% set classname = "pending" %}
-    {% if order.processed %}
-        {% set classname = "processed" %}
-    {% endif %}
-        {% for item in order.items %}
-        <p class = "{{ classname }}">
-            <span>Product: {{ item.product.name }}</span>
-            <span>Price: ${{ item.product.price }}</span>
-            <span>Quantity Available: {{ item.quantity }}</span>
-            <span>Order Created Time: {{ order.created }}</span>
-            <span>Order Processed Time: {{ order.processed }}</span>
+        <p>
+            <span>Product ID: {{ product.id }}</span>
+            <span>Name {{ product.name }}</span>
+            <span>Price: {{ product.price }}</span>
+            <span>Stock Available: {{ product.available }}</span>
         </p>
-        {% endfor %}
     </div>
 
-    <form  action="{{ url_for('order_process', order_id=order.id) }}" method="post">
-        {% if order.processed %}
-            <button class = "process_button" type="submit" value="Process Order" disabled>Process (Disabled)</button>
-        {% else %}
-            <button class = "process_button" type="submit" value="Process Order">Process</button>
-        {% endif %}
-    </form>
-    
-    <form  action="{{ url_for('order_delete', order_id=order.id) }}" method="post">
-        {% if order.processed %}
-            <button class = "delete_button" type="submit" value="Delete Order" disabled>Delete (Disabled)</button>
-        {% else %}
-            <button class = "delete_button" type="submit" value="Delete Order">Delete</button>
-        {% endif %}
-    </form>
-    
-    <a href="/customers/{{ order.customer_id }}" class="return_link">Back to Customer</a>
+    <a href="/products" class="return_link">Back to Products</a>
    {% endblock %}
