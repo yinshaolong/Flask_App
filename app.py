@@ -94,6 +94,12 @@ def customer_detail_json(customer_id):
     json_record = customer.to_dict()
     return jsonify(json_record)
 
+@app.route("/api/products/<int:product_id>")
+def product_detail_json(product_id):
+    product = db.get_or_404(Product, product_id)
+    json_record = product.to_dict()
+    return jsonify(json_record)
+
 @app.route("/api/customers/<int:customer_id>", methods=["DELETE"])
 def customer_delete(customer_id):
     # customer = db.session.execute(db.select(Customer).where(Customer.id == customer_id)).scalar()
