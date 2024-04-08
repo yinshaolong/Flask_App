@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-        <span>Order Number: {{ order.id }}</span>
+        <p>Order Number: {{ order.id }}</p>
+        <a href="/customers/{{ order.customer_id }}"><p>Customer Name: {{ order.customer.name }}</p></a>
+        {% if not order.processed %}
+            <p>Estimated Total Cost: {{ order.calculate_total() }}</p>
+        {% else %}
+            <p>Total Cost: {{ order.total }}</p>
+        {% endif %}
     <div>
     {% set classname = "pending" %}
     {% if order.processed %}
@@ -11,14 +17,14 @@
         <p class = "{{ classname }}">
             <span>Product: {{ item.product.name }}</span>
             <span>Price: ${{ item.product.price }}</span>
-            <span>Quantity Available: {{ item.quantity }}</span>
+            <span>Quantity Available: {{ item.product.available }}</span>
             <span>Order Created Time: {{ order.created }}</span>
             <span>Order Processed Time: {{ order.processed }}</span>
         </p>
         {% endfor %}
     </div>
 
-    <form  action="{{ url_for('order_process', order_id=order.id) }}" method="post">
+    <form  action="{{ url_for('html.order_process', order_id=order.id) }}" method="post">
         {% if order.processed %}
             <button class = "process_button" type="submit" value="Process Order" disabled>Process (Disabled)</button>
         {% else %}
@@ -26,7 +32,7 @@
         {% endif %}
     </form>
     
-    <form  action="{{ url_for('order_delete', order_id=order.id) }}" method="post">
+    <form  action="{{ url_for('html.order_delete', order_id=order.id) }}" method="post">
         {% if order.processed %}
             <button class = "delete_button" type="submit" value="Delete Order" disabled>Delete (Disabled)</button>
         {% else %}

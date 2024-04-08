@@ -9,8 +9,8 @@ class Customer(db.Model):
     id = mapped_column(Integer, primary_key=True)
     name = mapped_column(String(200), nullable=False, unique=True)
     phone = mapped_column(String(20), nullable=False )
-    balance = mapped_column(Numeric(10,2), nullable=False, default=0)
-    orders = relationship("Order") #only one back_populates is needed, the other is inferred
+    balance = mapped_column(Numeric(10,2), nullable=False, default=40)
+    orders = relationship("Order", cascade="all, delete-orphan") #only one back_populates is needed, the other is inferred
     def to_dict(self):
         return {
             "id": self.id,
@@ -25,8 +25,16 @@ class Product(db.Model):
     id = mapped_column(Integer, primary_key=True)
     name = mapped_column(String(200), nullable=False, unique=True)
     price = mapped_column(Numeric(10,2), nullable=False)
-    available = mapped_column(Integer, nullable=False, default=0) #number of products available
+    available = mapped_column(Integer, nullable=False, default=4) #number of products available
     orders = relationship("ProductOrder")
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "price": self.price,
+            "available": self.available,
+            "orders": [order.id for order in self.orders]
+        }
 
 class Order(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)
@@ -48,6 +56,7 @@ class Order(db.Model):
         return round(sum([item.product.price * item.quantity for item in self.items]), 2)
         # self.total = round(reduce(lambda x, y: x + y, [item.product.price * item.quantity for item in self.items]), 2)
     def process_order(self, strategy = "adjust"):
+        order_total = 0
         if self.processed:
             return (f'Order {self.id} has already been processed', False)
         if self.customer.balance < 0:
@@ -64,11 +73,14 @@ class Order(db.Model):
                     item.quantity = 0
             else:
                 item.product.available -= item.quantity
-        self.total = self.calculate_total() #calculate total price of order
-        self.customer.balance -= self.total
+        order_total = self.calculate_total() #calculate total price of order
+        print(f'testing product: {item.product.price} {item.quantity} {item.product.available} {order_total}')
+        self.customer.balance -= order_total
+        self.total = order_total
         self.processed = func.now() # or datetime
-        # db.session.commit() #commiting in the route
+        db.session.commit() #commiting in the route
         return True
+
 
 class ProductOrder(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)

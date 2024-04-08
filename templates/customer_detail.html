@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+
 <div>
     <p>
-        <span>Customer Name: {{ customer.name }}</span><br>
+        <span>Customer Name: {{ customer.name }}</span>
         <span>Customer ID: {{ customer.id }}</span>
+        <span>Customer Balance: ${{ customer.balance }}</span>
     </p>
-    {% for order in customer.orders %}
-    <p>
-        <a href="{{ url_for('order_detail', order_id=order.id) }}"><span>Order ID: {{ order.id }}</span></a><br>
-    {% if order.total %}
-    <span>Total: ${{ order.total }}</span>
-    {% else %}
-    <span>Total: $0.00</span>
-    {% endif %}
-    </p>
+        {% for order in customer.orders %}
+            {% set classname = "pending" %}
+            {% if order.processed %}
+                {% set classname = "processed" %}
+            {% endif %}
+            <p class = "{{ classname }}">
+                <a href="{{ url_for('html.order_detail', order_id=order.id) }}" class = "order"><span>Order ID: {{ order.id }}</span></a><br>
+
+            <span>Total: ${{ order.calculate_total() }}</span>
+            {% else %}
+            <span>Total: $0.00</span>
+            </p>
     {% endfor %}
 </div>
-<p><a href="{{ url_for('customers') }}">Back to Customers</a></p>
+<p><a href="{{ url_for('html.customers') }}">Back to Customers</a></p>
 {% endblock %}

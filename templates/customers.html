@@ -7,13 +7,13 @@
 <div>
     <p>
         <!-- first param needs to be the name of the function in the app.py file (customer_detail) -->
-        <a href="{{ url_for('customer_detail', customer_id=customer.id) }}">
+        <a href="{{ url_for('html.customer_detail', customer_id=customer.id) }}">
             <span>Customer ID: {{ customer.id }}</span></a>
             <span>Customer Name: {{ customer.name }}</span>
             <span>Phone #: {{ customer.phone }}</span>
             <span>Balance: ${{ customer.balance }}</span>
             <!-- {% for order in customer.orders %}
-                <a href="{{ url_for('order_detail', order_id=order.id)}}"><span>Order ID: {{ order.id }}</span></a>
+                <a href="{{ url_for('html.order_detail', order_id=order.id)}}"><span>Order ID: {{ order.id }}</span></a>
                 {% endfor %} -->
             </p>
         </div>
