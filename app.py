@@ -42,10 +42,10 @@ def customer_detail(customer_id):
     customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
     return render_template("customer_detail.html", customer=customer)
 
-# @app.route("/products/<int:product_id>")
-# def product_detail(product_id):
-#     product = db.get_or_404(Product, product_id)
-#     return render_template("product_detail.html", product=product)
+@app.route("/products/<int:product_id>")
+def product_detail(product_id):
+    product = db.get_or_404(Product, product_id)
+    return render_template("product_detail.html", product=product)
 
 @app.route("/orders/<int:order_id>")
 def order_detail(order_id):
