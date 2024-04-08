@@ -61,7 +61,7 @@ form {
     margin-top: 20px;
 }
 
-form input[type="submit"] {
+form button[type="submit"] {
     background-color: #ff0000;
     color: #ffffff;
     border: none;
@@ -74,11 +74,15 @@ form input[type="submit"] {
     transition: background-color 0.3s ease;
 }
 
-form input[type="submit"].delete:hover {
+form button[type="submit"].process_button {
+    background-color: #0015ff;
+}
+
+form button[type="submit"].delete_button:hover {
     background-color: #cc0000;
 }
 
-form input[type="submit"].process:hover {
+form button[type="submit"].process_button:hover {
     background-color: #726dc7;
 }
 
@@ -103,4 +107,11 @@ form input[type="submit"].process:hover {
 #home_img {
     width: 100%;
     height: auto;
+}
+
+.return_link {
+    color: #0000ff;
+    text-decoration: none;
+    font-size: 16px;
+    text-align: center;
 }

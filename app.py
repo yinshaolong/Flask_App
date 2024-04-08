@@ -32,6 +32,7 @@ def products():
     results = records.scalars()
     return render_template("products.html", products=results)
 
+
 @app.route("/customers/<int:customer_id>")
 def customer_detail(customer_id):
     # print("in customer details")
@@ -62,10 +63,21 @@ def customers_json():
     results = db.session.execute(statement)
     customers = [] #output variable
     for customer in results.scalars(): #scalars is an iterator queue
-        json_record = customer.to_
+        json_record = customer.to_dict()
         print("json record",type(json_record))
         customers.append(json_record)
     return jsonify(customers)
+
+@app.route("/api/orders")
+def orders_json():
+    statement = db.select(Order).order_by(Order.id)
+    results = db.session.execute(statement)
+    orders = []
+    for order in results.scalars():
+        json_record = order.to_dict()
+        orders.append(json_record)
+    return jsonify(orders)
+
 
 @app.route("/api/customers/<int:customer_id>")
 def customer_detail_json(customer_id):
@@ -88,12 +100,12 @@ def customer_delete(customer_id):
 @app.route("/orders/<int:order_id>/delete", methods=["POST"])
 def order_delete(order_id):
     order = db.get_or_404(Order, order_id)
-    db.session.delete(order)
-    db.session.commit()
-    # return ("deleted", 204)
+    if not order.processed: #disable functionality to prevent bad people from trigging request without form
+        db.session.delete(order)
+        db.session.commit()
+        return redirect(url_for("orders"))
+    return redirect(url_for("order_detail", order_id=order_id)) #refresh page
     
-    #redirects to the url where the list of orders are
-    return redirect(url_for("orders"))
 
 def contains_digit(number):
     return any(char.isdigit() for char in number) #returns true if ANY character in the string is a digit
@@ -213,10 +225,11 @@ def update_order(order_id):
 @app.route("/api/orders/<int:order_id>", methods=["POST"])
 def order_process(order_id):
     order = db.get_or_404(Order, order_id)
-    order.process_order()
-    db.session.commit()
-    return jsonify({"Message": "Order processed"}, 204)
-
+    processed = order.process_order()
+    if not processed:
+        db.session.commit()
+        return redirect(url_for("orders"))
+    return redirect(url_for("order_detail", order_id=order_id)) #refresh page
 
 if __name__ == "__main__":
     app.run(debug=True, port=8888)

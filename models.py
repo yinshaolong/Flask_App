@@ -68,7 +68,7 @@ class Order(db.Model):
         self.customer.balance -= self.total
         self.processed = func.now() # or datetime
         # db.session.commit() #commiting in the route
-        return (f'Order {self.id} has been processed', True)
+        return True
 
 class ProductOrder(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)
