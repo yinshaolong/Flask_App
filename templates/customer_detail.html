@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <span>Customer Name: {{ customer.name }}</span>
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <p>
+        <span>Customer Name: {{ customer.name }}</span><br>
+        <span>Customer ID: {{ customer.id }}</span>
+    </p>
     {% for order in customer.orders %}
-        <p>
-            <a href="{{ url_for('orders') }}"><span>Order ID: {{ order.id }}</span></a>
-            <span>Total: {{ order.total }}</span>
-        </p>
+    <p>
+        <a href="{{ url_for('order_detail', order_id=order.id) }}"><span>Order ID: {{ order.id }}</span></a><br>
+    {% if order.total %}
+    <span>Total: ${{ order.total }}</span>
+    {% else %}
+    <span>Total: $0.00</span>
+    {% endif %}
+    </p>
     {% endfor %}
-</body>
-</html>
+</div>
+<p><a href="{{ url_for('customers') }}">Back to Customers</a></p>
+{% endblock %}

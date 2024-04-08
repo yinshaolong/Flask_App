@@ -62,13 +62,8 @@ def customers_json():
     results = db.session.execute(statement)
     customers = [] #output variable
     for customer in results.scalars(): #scalars is an iterator queue
-        # json_record = {
-        #     "id": customer.id,
-        #     "name": customer.name,
-        #     "phone": customer.phone,
-        #     "balance": customer.balance
-        # }
-        json_record = customer.to_json()
+        json_record = customer.to_
+        print("json record",type(json_record))
         customers.append(json_record)
     return jsonify(customers)
 
@@ -79,12 +74,7 @@ def customer_detail_json(customer_id):
     # customer = result.scalar()
     customer = db.get_or_404(Customer, customer_id) #does the same thing as line above, but also returns the 404 error if not found
     #single entry so no need to iterate
-    json_record = {
-            "id": customer.id,
-            "name": customer.name,
-            "phone": customer.phone,
-            "balance": customer.balance
-    }
+    json_record = customer.to_dict()
     return jsonify(json_record)
 
 @app.route("/api/customers/<int:customer_id>", methods=["DELETE"])
@@ -197,6 +187,30 @@ def order_create():
     if not is_valid_order:
         return jsonify({"error": "No valid products in the order"}, 404)
     return jsonify({"Message": "Order created"}, 201)
+
+
+@app.route("/api/orders/<int:order_id>", methods=["PUT"])
+def update_order(order_id):
+    print("this is request", request.json)
+    if "processed" not in request.json or not isinstance(request.json["processed"], bool):
+        return jsonify({"error": "missing viable'processed' key"}, 404)
+    
+    if not request.json["processed"]: #if processed is false
+        return jsonify({"error": "process not yet completed"}, 404)
+    
+    strategy = "adjust" #default
+    if "strategy" in request.json:
+        if request.json["strategy"] in ["adjust", "reject", "ignore"]:
+            strategy = request.json["strategy"]
+        else:
+            return jsonify({"error": "Invalid strategy"}, 404)
+        
+    order = db.get_or_404(Order, order_id)
+    order.process_order(strategy)
+    db.session.commit()
+    return jsonify({"Message": f"Strategy: {strategy} - Order processed "}, 204)
+    
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8888)

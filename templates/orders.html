@@ -1,21 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    {% for order in orders %}
-        <p>
-            <span>Order ID: {{ order.id }} | </span>
-            <span>Customer: {{ order.customer.name }} | </span>
-            <span>Product: {{ order.items[0].product.name }} |</span>
-            <span>Product: ${{ order.items[0].product.price }} |</span>
-            <span>Quantity: {{ order.items[0].quantity }} |</span>
-            <span>Total: {{ order.total }}</span>
-        </p>
+{% block content %}
+<h1>Orders</h1>
+{% for order in orders %}
+<div>
+    {% set classname = "pending" %}
+    {% if order.processed %}
+        {% set classname = "processed" %}
+    {% endif %}
+    <p class = "{{ classname }}">
+        <span>Order ID: {{ order.id }}  </span>
+        <span>Customer: {{ order.customer.name }}  </span>
+        <span>Product: {{ order.items[0].product.name }} </span>
+        <span>Product: ${{ order.items[0].product.price }} </span>
+        <span>Quantity: {{ order.items[0].quantity }} </span>
+        <span>Total: {{ order.total }}</span>
+    </p>
+</div>
     {% endfor %}
-</body>
-</html>
+{% endblock %}

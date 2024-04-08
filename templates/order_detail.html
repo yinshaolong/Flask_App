@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
         <span>Order Number: {{ order.id }}</span>
-    {% for product in order.items %}
+    <div>
+
+        {% for item in order.items %}
         <p>
-            <a href="{{ url_for('orders') }}"><span>Order ID: {{ order.id }}</span></a>
-            <span>Total: {{ order.total }}</span>
+            <span>Product: {{ item.product.name }}</span>
+            <span>Price: ${{ item.product.price }}</span>
+            <span>Quantity Available: {{ item.quantity }}</span>
         </p>
-    {% endfor %}
-</body>
-</html>
+        {% endfor %}
+    </div>
+    <form action="{{ url_for('order_delete', order_id=order.id) }}" method="post">
+        <input type="submit" value="Delete Order">
+    </form>
+        <a href="/customers/{{ order.customer_id }}">Back to Orders </a>
+
+   {% endblock %}

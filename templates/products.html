@@ -2,11 +2,14 @@
 
 {% block content %}
 <h1>Products</h1>
+
 {% for product in products %}
-<p>
-    <span class="product_name">{{ product.id }}</span>
-    <span class="product_name">{{ product.name }}</span>
-    <span class="product_price">{{ product.price }}</span>
-</p>
-{% endfor %}
+<div>
+    <p>
+        <span class="product_name">Product ID: {{ product.id }}</span>
+        <span class="product_name">Product Name: {{ product.name }}</span>
+        <span class="product_price">Product Price: {{ product.price }}</span>
+    </p>
+</div>
+    {% endfor %}
 {% endblock %}

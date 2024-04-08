@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Float, Numeric, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Float, Numeric, ForeignKey, Integer, String, DateTime, func
 from sqlalchemy.orm import mapped_column, relationship
 from functools import reduce
 
@@ -11,7 +11,7 @@ class Customer(db.Model):
     phone = mapped_column(String(20), nullable=False )
     balance = mapped_column(Numeric(10,2), nullable=False, default=0)
     orders = relationship("Order") #only one back_populates is needed, the other is inferred
-    def to_json(self):
+    def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
@@ -33,8 +33,11 @@ class Order(db.Model):
     customer_id = mapped_column(Integer, ForeignKey(Customer.id), nullable=False)
     customer = relationship("Customer", back_populates="orders")#looks up related enttiy without having to do joins (adds customer_id to the Order table)
     total = mapped_column(Numeric(10,2), nullable=True) #nullable until order is processed by the store
-    items = relationship("ProductOrder") 
-    def to_json(self):
+    items = relationship("ProductOrder", back_populates="order", cascade='all, delete-orphan') 
+
+    created = mapped_column(DateTime, nullable=False, default=func.now())
+    processed = mapped_column(DateTime, nullable=True, default=None)
+    def to_dict(self):
         return {
             "id": self.id,
             "customer_id": self.customer_id,
@@ -44,6 +47,28 @@ class Order(db.Model):
     def calculate_total(self):
         return round(sum([item.product.price * item.quantity for item in self.items]), 2)
         # self.total = round(reduce(lambda x, y: x + y, [item.product.price * item.quantity for item in self.items]), 2)
+    def process_order(self, strategy = "adjust"):
+        if self.processed:
+            return (f'Order {self.id} has already been processed')
+        if self.customer.balance < 0:
+            return (f'Customer {self.customer_id} has a negative balance')
+        
+        for item in self.items:
+            if item.product.available < item.quantity: #adjust quantity of order to match available stock
+                if strategy == "adjust":            
+                    item.quantity = item.product.available
+                    item.product.available = 0
+                elif strategy == "reject":
+                    return (f'Order {self.id} not processed due to insufficent stock')       
+                elif strategy == "ignore":      
+                    item.quantity = 0
+            else:
+                item.product.available -= item.quantity
+        self.total = self.calculate_total() #calculate total price of order
+        self.customer.balance -= self.total
+        self.processed = func.now() # or datetime
+        # db.session.commit() #commiting in the route
+        return True
 
 class ProductOrder(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)
