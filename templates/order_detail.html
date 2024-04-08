@@ -4,10 +4,11 @@
         <p>Order Number: {{ order.id }}</p>
         <a href="/customers/{{ order.customer_id }}"><p>Customer Name: {{ order.customer.name }}</p></a>
         {% if not order.processed %}
-            <p>Estimated Total Cost: {{ order.calculate_total() }}</p>
-        {% else %}
-            <p>Total Cost: {{ order.total }}</p>
+            <p>Estimated Total Cost: ${{ order.calculate_total() }}</p>
+            {% else %}
+            <p>Total Cost: ${{ order.total }}</p>
         {% endif %}
+        <p>Customer Balance: ${{ order.customer.balance }}</p>
     <div>
     {% set classname = "pending" %}
     {% if order.processed %}
@@ -18,6 +19,7 @@
             <span>Product: {{ item.product.name }}</span>
             <span>Price: ${{ item.product.price }}</span>
             <span>Quantity Available: {{ item.product.available }}</span>
+            <span>Quantity Ordered by Customer: {{ item.quantity }}
             <span>Order Created Time: {{ order.created }}</span>
             <span>Order Processed Time: {{ order.processed }}</span>
         </p>

@@ -1,5 +1,6 @@
 import requests
 import webbrowser
+# from rich import print
 
 # CHANGE THE VARIABLE BELOW TO YOUR FLASK URL
 FLASK_URL = "http://localhost:8888"
@@ -61,7 +62,7 @@ def demo1():
     NOK_order_1 = {
         "customer_id": 1,
         "items": [
-            {"name": "ground beef", "quantity": 99999999},
+            {"name": "ground beef", "quantity": 1},
             {"name": "bananas", "quantity": 99999999},
             {"name": "chicken thigh", "quantity": 99999999}
         ]
@@ -69,7 +70,7 @@ def demo1():
     NOK_order_2 = {
         "customer_id": 2,
         "items": [
-            {"name": "orange", "quantity": 99999999},
+            {"name": "orange", "quantity": 1},
             {"name": "potato", "quantity": 99999999},
             {"name": "cheese", "quantity": 99999999}
         ]
@@ -77,7 +78,7 @@ def demo1():
     OK_order_3 = {
         "customer_id": 3,
         "items": [
-            {"name": "milk", "quantity": 1},
+            {"name": "milk", "quantity": 99999999},
             {"name": "eggs", "quantity": 1},
             {"name": "bread", "quantity": 1}
         ]
@@ -102,16 +103,14 @@ def demo2():
 def demo3():
     put("/api/orders/11", {"processed": True, "strategy": "reject"})
     print(get(f"/api/customers/1").json())
-    input("Press Enter to continue.")
     print(get(f"/api/products/12").json())
     
-    input("Press Enter to continue.")
     print(get(f"/api/products/2").json())
     
-    input("Press Enter to continue.")
     print(get(f"/api/products/11").json())
+    input("Product reject. Press Enter to continue.")
     #ignore
-    put("/api/orders/11", {"processed": True, "strategy": "ignore"})
+    put("/api/orders/12", {"processed": True, "strategy": "ignore"})
     print(get(f"/api/customers/1").json())
     input("Press Enter to continue.")
     print(get(f"/api/products/12").json())
@@ -121,18 +120,18 @@ def demo3():
     
     input("Press Enter to continue.")
     print(get(f"/api/products/11").json())
+    input("Product ignore. Press Enter to continue.")
     
 def demo4():
     put("/api/orders/12", {"processed": True, "strategy": "adjust"})
     print(get(f"/api/customers/2").json())
-    input("Press Enter to continue.")
     print(get(f"/api/products/4").json())
-    
     input("Press Enter to continue.")
+    
     print(get(f"/api/products/6").json())
     
-    input("Press Enter to continue.")
     print(get(f"/api/products/13").json())
+    input("Press Enter to continue.")
 
 
 if __name__ == "__main__":

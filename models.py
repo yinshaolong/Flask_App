@@ -68,6 +68,7 @@ class Order(db.Model):
                     item.quantity = item.product.available
                     item.product.available = 0
                 elif strategy == "reject":
+                    db.session.rollback()
                     return (f'Order {self.id} not processed due to insufficent stock', False)       
                 elif strategy == "ignore":      
                     item.quantity = 0

@@ -8,7 +8,8 @@
     <p>
         <span class="product_name">Product ID: {{ product.id }}</span>
         <span class="product_name">Product Name: {{ product.name }}</span>
-        <span class="product_price">Product Price: {{ product.price }}</span>
+        <span class="product_price">Product Price: ${{ product.price }}</span>
+        <span>Product Stock: {{ product.available }}</span>
     </p>
 </div>
     {% endfor %}
