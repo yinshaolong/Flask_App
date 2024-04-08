@@ -49,9 +49,9 @@ class Order(db.Model):
         # self.total = round(reduce(lambda x, y: x + y, [item.product.price * item.quantity for item in self.items]), 2)
     def process_order(self, strategy = "adjust"):
         if self.processed:
-            return (f'Order {self.id} has already been processed')
+            return (f'Order {self.id} has already been processed', False)
         if self.customer.balance < 0:
-            return (f'Customer {self.customer_id} has a negative balance')
+            return (f'Customer {self.customer_id} has a negative balance', False)
         
         for item in self.items:
             if item.product.available < item.quantity: #adjust quantity of order to match available stock
@@ -59,7 +59,7 @@ class Order(db.Model):
                     item.quantity = item.product.available
                     item.product.available = 0
                 elif strategy == "reject":
-                    return (f'Order {self.id} not processed due to insufficent stock')       
+                    return (f'Order {self.id} not processed due to insufficent stock', False)       
                 elif strategy == "ignore":      
                     item.quantity = 0
             else:
@@ -68,7 +68,7 @@ class Order(db.Model):
         self.customer.balance -= self.total
         self.processed = func.now() # or datetime
         # db.session.commit() #commiting in the route
-        return True
+        return (f'Order {self.id} has been processed', True)
 
 class ProductOrder(db.Model):
     id = mapped_column(Integer, nullable=False, primary_key=True)

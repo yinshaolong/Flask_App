@@ -87,3 +87,8 @@ form input[type="submit"]:hover {
     background-color: #4f5155;
     color: #ffffff;
 }
+
+#home_img {
+    width: 100%;
+    height: auto;
+}
