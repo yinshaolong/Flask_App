@@ -23,6 +23,10 @@ def products():
     results = records.scalars()
     return render_template("products.html", products=results)
 
+@html_bp.route("/products/<int:product_id>", methods=["GET"])
+def product_detail(product_id):
+    product = db.get_or_404(Product, product_id)
+    return render_template("product_detail.html", product=product)
 
 @html_bp.route("/customers/<int:customer_id>", methods=["GET"])
 def customer_detail(customer_id):
