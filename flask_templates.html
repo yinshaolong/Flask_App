@@ -1,0 +1,187 @@
+##### base.html
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <body>
+        <nav>
+            <a href="{{ url_for('html.home') }}">Home</a>
+            <a href="{{ url_for('html.customers') }}">Customers</a>
+            <a href="{{ url_for('html.products') }}">Products</a>
+            <a href="{{ url_for('html.orders') }}">Orders</a>
+        </nav>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
+
+#### home.html
+{% extends "base.html" %}
+{% block content %}
+<!-- <img id="home_img" src="static/Worst-Supermarkets.jpg" alt="Grocery Store Image"> -->
+<img id="home_img" src="static/images.jpg" alt="Grocery Store Image">
+{% endblock %}
+
+
+##### products.html
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Products</h1>
+
+{% for product in products %}
+<div>
+    <p>
+        <a class = "product" href= "{{ url_for('html.product_detail', product_id=product.id) }}"><span>Product ID: {{ product.id }}  </span></a>
+        <span class="product_name">Product Name: {{ product.name }}</span>
+        <span class="product_price">Product Price: ${{ product.price }}</span>
+        <span>Product Stock: {{ product.available }}</span>
+    </p>
+</div>
+    {% endfor %}
+{% endblock %}
+
+####### product_detail.html
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <p>
+            <span>Product ID: {{ product.id }}</span>
+            <span>Name: {{ product.name }}</span>
+            <span>Price: {{ product.price }}</span>
+            <span>Stock Available: {{ product.available }}</span>
+        </p>
+    </div>
+
+    <a href="/products" class="return_link">Back to Products</a>
+   {% endblock %}
+
+
+   ####### orders
+   {% extends "base.html" %}
+
+{% block content %}
+<h1>Orders</h1>
+{% for order in orders %}
+<div>
+    {% set classname = "pending" %}
+    {% if order.processed %}
+        {% set classname = "processed" %}
+    {% endif %}
+    <p class = "{{ classname }}">
+        <a class = "order" href= "{{ url_for('html.order_detail', order_id=order.id) }}"><span>Order ID: {{ order.id }}  </span></a>
+        <span>Customer: {{ order.customer.name }}  </span>
+        <span>Product: {{ order.items[0].product.name }} </span>
+        <span>Product: ${{ order.items[0].product.price }} </span>
+        <span>Quantity: {{ order.items[0].quantity }} </span>
+        <span>Total: {{ order.total }}</span>
+    </p>
+</div>
+    {% endfor %}
+{% endblock %}
+
+##### order_detail.html
+{% extends "base.html" %}
+
+{% block content %}
+        <p>Order Number: {{ order.id }}</p>
+        <a href="/customers/{{ order.customer_id }}"><p>Customer Name: {{ order.customer.name }}</p></a>
+        {% if not order.processed %}
+            <p>Estimated Total Cost: ${{ order.calculate_total() }}</p>
+            {% else %}
+            <p>Total Cost: ${{ order.total }}</p>
+        {% endif %}
+        <p>Customer Balance: ${{ order.customer.balance }}</p>
+    <div>
+    {% set classname = "pending" %}
+    {% if order.processed %}
+        {% set classname = "processed" %}
+    {% endif %}
+        {% for item in order.items %}
+        <p class = "{{ classname }}">
+            <a class = "product" href= "{{ url_for('html.product_detail', product_id=item.product.id) }}"<span>Product: {{ item.product.name }}</span></a>
+            <span>Price: ${{ item.product.price }}</span>
+            <span>Quantity Available: {{ item.product.available }}</span>
+            <span>Quantity Ordered by Customer: {{ item.quantity }}
+            <span>Order Created Time: {{ order.created }}</span>
+            <span>Order Processed Time: {{ order.processed }}</span>
+        </p>
+        {% endfor %}
+    </div>
+
+    <form  action="{{ url_for('html.order_process', order_id=order.id) }}" method="post">
+        {% if order.processed %}
+            <button class = "process_button" type="submit" value="Process Order" disabled>Process (Disabled)</button>
+        {% else %}
+            <button class = "process_button" type="submit" value="Process Order">Process</button>
+        {% endif %}
+    </form>
+    
+    <form  action="{{ url_for('html.order_delete', order_id=order.id) }}" method="post">
+        {% if order.processed %}
+            <button class = "delete_button" type="submit" value="Delete Order" disabled>Delete (Disabled)</button>
+        {% else %}
+            <button class = "delete_button" type="submit" value="Delete Order">Delete</button>
+        {% endif %}
+    </form>
+    
+    <a href="/customers/{{ order.customer_id }}" class="return_link">Back to Customer</a>
+   {% endblock %}
+
+
+######## customers.html 
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Customers</h1>
+
+{% for customer in customers %}
+<div>
+    <p>
+        <!-- first param needs to be the name of the function in the app.py file (customer_detail) -->
+        <a href="{{ url_for('html.customer_detail', customer_id=customer.id) }}">
+            <span>Customer ID: {{ customer.id }}</span></a>
+            <span>Customer Name: {{ customer.name }}</span>
+            <span>Phone #: {{ customer.phone }}</span>
+            <span>Balance: ${{ customer.balance }}</span>
+            <!-- {% for order in customer.orders %}
+                <a href="{{ url_for('html.order_detail', order_id=order.id)}}"><span>Order ID: {{ order.id }}</span></a>
+                {% endfor %} -->
+            </p>
+        </div>
+            {% endfor %}
+{% endblock %}
+
+
+####### customer_detail.html 
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div>
+    <p>
+        <span>Customer Name: {{ customer.name }}</span>
+        <span>Customer ID: {{ customer.id }}</span>
+        <span>Customer Balance: ${{ customer.balance }}</span>
+    </p>
+        {% for order in customer.orders %}
+            {% set classname = "pending" %}
+            {% if order.processed %}
+                {% set classname = "processed" %}
+            {% endif %}
+            <p class = "{{ classname }}">
+                <a href="{{ url_for('html.order_detail', order_id=order.id) }}" class = "order"><span>Order ID: {{ order.id }}</span></a><br>
+
+            <span>Total: ${{ order.calculate_total() }}</span>
+            {% else %}
+            <span>Total: $0.00</span>
+            </p>
+    {% endfor %}
+</div>
+<p><a href="{{ url_for('html.customers') }}">Back to Customers</a></p>
+{% endblock %}
